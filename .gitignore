@@ -1,0 +1,4 @@
+/.env
+/backrest/cache/restic
+/backrest/config
+/backrest/data

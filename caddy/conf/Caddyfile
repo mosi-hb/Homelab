@@ -1,0 +1,14 @@
+vpn.mosi-hb.com {
+  reverse_proxy wg-easy:51821
+}
+
+livesync.mosi-hb.com {
+  @admin-panel path /_utils/*
+  respond @admin-panel "Forbidden" 403
+
+  reverse_proxy livesync-couchdb:5984
+}
+
+backrest.mosi-hb.com {
+  reverse_proxy backrest:9898
+}

@@ -1,0 +1,64 @@
+name: obsidian-livesync
+services:
+  couchdb:
+    image: couchdb:latest
+    container_name: livesync-couchdb
+    restart: unless-stopped
+    # NOTE: Do NOT set user: here — the CouchDB entrypoint starts as root to
+    # write docker.ini (from env vars), then drops to uid 5984 automatically.
+    environment:
+      COUCHDB_USER: ${COUCHDB_USER:?Set COUCHDB_USER in .env}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD:?Set COUCHDB_PASSWORD in .env}
+    volumes:
+      - couchdb-data:/opt/couchdb/data
+      # Mount to /opt/couchdb/etc/local.ini (NOT into local.d/).
+      # Do NOT use :ro — the CouchDB entrypoint runs chmod on this file at startup
+      # and will crash with EPERM if the file is read-only. The file is only read
+      # at startup; runtime changes go via the REST API into local.d/docker.ini.
+      - ./config/livesync.ini:/opt/couchdb/etc/local.ini
+    healthcheck:
+      # Test with admin credentials — ensures both CouchDB is up AND auth is ready.
+      # ${COUCHDB_USER} / ${COUCHDB_PASSWORD} are expanded by Docker Compose here.
+      test:
+        - "CMD-SHELL"
+        - "curl -sf -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} http://localhost:5984/_session | grep -q ok || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s
+    networks:
+      - livesync-net
+      - caddy-network
+
+  # ---------------------------------------------------------------------------
+  # One-shot init container — runs couchdb-init.sh after CouchDB is healthy.
+  # Sets single-node cluster, auth requirements, CORS, size limits, creates DB.
+  # Restarts on failure (e.g. race at first boot) but won't re-run if already done.
+  # ---------------------------------------------------------------------------
+  couchdb-init:
+    image: curlimages/curl:latest
+    container_name: livesync-init
+    restart: on-failure
+    depends_on:
+      couchdb:
+        condition: service_healthy
+    environment:
+      COUCHDB_INTERNAL_URL: http://couchdb:5984
+      COUCHDB_USER: ${COUCHDB_USER}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
+      COUCHDB_DATABASE: ${COUCHDB_DATABASE:-obsidiannotes}
+    volumes:
+      - ./scripts/couchdb-init.sh:/couchdb-init.sh:ro
+    entrypoint: ["sh", "/couchdb-init.sh"]
+    networks:
+      - livesync-net
+
+volumes:
+  couchdb-data:
+    driver: local
+
+networks:
+  livesync-net:
+    driver: bridge
+  caddy-network:
+    external: true

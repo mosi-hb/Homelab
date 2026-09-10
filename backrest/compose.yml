@@ -1,0 +1,26 @@
+services:
+  backrest:
+    image: ghcr.io/garethgeorge/backrest:latest
+    container_name: backrest
+    hostname: backrest
+    volumes:
+      - ./data:/data
+      - ./config:/config
+      - ./cache:/cache
+      - ./tmp:/tmp
+      - ./rclone:/root/.config/rclone # Mount for rclone config (needed when using rclone remotes)
+      - /var/lib/docker/volumes/obsidian-livesync_couchdb-data/_data:/obsidian-livesync-data
+      - /var/lib/docker/volumes/wg-easy_etc_wireguard/_data:/wg-easy-data
+    networks:
+      caddy-network: {}
+    environment:
+      - BACKREST_DATA=/data
+      - BACKREST_CONFIG=/config/config.json
+      - XDG_CACHE_HOME=/cache
+      - TMPDIR=/tmp
+      - TZ=America/Los_Angeles
+    restart: unless-stopped
+
+networks:
+  caddy-network:
+    external: true
