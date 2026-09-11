@@ -6,22 +6,23 @@
 
 ## Overview
 
-A self-hosted homelab running on a Contabo VPS, hosts any needed services along with a system set for backups.
+A self-hosted homelab running on a Contabo VPS, hosts any needed services along with a system set for backups and uptime monitoring.
 
 ## Components
 
-| Component         | Purpose |
+| Component         | Purpose                                         |
 |---                |---                                              |
-| Caddy             | Reverse proxy and HTTPS                         |
-| WireGuard         | VPN access                                      |
-| Obsidian LiveSync | Real-time note syncing between multiple devices |
 | Backrest          | Backup management                               |
 | Backblaze         | Off-site backup storage                         |
+| Caddy             | Reverse proxy and HTTPS                         |
 | Cloudflare        | DNS and domain management                       |
+| Obsidian LiveSync | Real-time note syncing between multiple devices |
+| Uptime Kuma       | Uptime monitoring                               |
+| WireGuard         | VPN access                                      |
 
 
 ### Future plans
 
-- [ ] Uptime monitoring
+- [x] Uptime monitoring
 - [ ] Adblocking
 - [ ] Cloud storage
