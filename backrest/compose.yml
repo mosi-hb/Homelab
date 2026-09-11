@@ -11,6 +11,7 @@ services:
       - ./rclone:/root/.config/rclone # Mount for rclone config (needed when using rclone remotes)
       - /var/lib/docker/volumes/obsidian-livesync_couchdb-data/_data:/obsidian-livesync-data
       - /var/lib/docker/volumes/wg-easy_etc_wireguard/_data:/wg-easy-data
+      - /var/lib/docker/volumes/uptime-kuma_uptime-kuma_data/_data:/uptime-kuma-data
     networks:
       caddy-network: {}
     environment:

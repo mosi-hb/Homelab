@@ -12,3 +12,7 @@ livesync.mosi-hb.com {
 backrest.mosi-hb.com {
   reverse_proxy backrest:9898
 }
+
+uptime.mosi-hb.com {
+  reverse_proxy uptime-kuma:3001
+}
